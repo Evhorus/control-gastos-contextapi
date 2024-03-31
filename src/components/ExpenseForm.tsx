@@ -9,7 +9,7 @@ import { useBudget } from "../hooks/useBudget";
 
 export default function ExpenseForm() {
   const [expense, setExpense] = useState<DraftExpense>({
-    amount: 0,
+    amount: NaN,
     expenseName: "",
     category: "",
     date: new Date(),
@@ -45,7 +45,7 @@ export default function ExpenseForm() {
 
     setExpense({
       ...expense,
-      [name]: isAmountField ? +value : value,
+      [name]: isAmountField ? (value === "" ? NaN : +value) : value,
     });
   };
 
