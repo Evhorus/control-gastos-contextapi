@@ -9,7 +9,7 @@ import { useBudget } from "../hooks/useBudget";
 
 export default function ExpenseForm() {
   const [expense, setExpense] = useState<DraftExpense>({
-    amount: NaN,
+    amount: "",
     expenseName: "",
     category: "",
     date: new Date(),
@@ -21,11 +21,17 @@ export default function ExpenseForm() {
 
   useEffect(() => {
     if (state.editingId) {
-      const editingExpense = state.expenses.filter(
+      const editingExpense = state.expenses.find(
         (currentExpense) => currentExpense.id === state.editingId
-      )[0];
-      setExpense(editingExpense);
-      setPreviousAmount(editingExpense.amount);
+      );
+      if (editingExpense) {
+        const draftExpense: DraftExpense = {
+          ...editingExpense,
+          amount: editingExpense.amount.toString(),
+        };
+        setExpense(draftExpense);
+        setPreviousAmount(editingExpense.amount);
+      }
     }
   }, [state.editingId, state.expenses]);
   const handleChangeDate = (value: Value) => {
@@ -45,7 +51,7 @@ export default function ExpenseForm() {
 
     setExpense({
       ...expense,
-      [name]: isAmountField ? (value === "" ? NaN : +value) : value,
+      [name]: isAmountField ? (value === "" ? "" : +value) : value,
     });
   };
 
@@ -58,7 +64,9 @@ export default function ExpenseForm() {
     }
 
     // no pasarme del limite
-    if (expense.amount - previousAmount > remainingBudget) {
+    const amount = parseInt(expense.amount);
+
+    if (amount - previousAmount > remainingBudget) {
       setError("Ese gasto se sale del presupuesto");
       return;
     }
@@ -67,7 +75,7 @@ export default function ExpenseForm() {
     if (state.editingId) {
       dispatch({
         type: "update-expense",
-        payload: { expense: { id: state.editingId, ...expense } },
+        payload: { expense: expense },
       });
     } else {
       dispatch({ type: "add-expense", payload: { expense } });
@@ -75,7 +83,7 @@ export default function ExpenseForm() {
 
     //REINICIAR
     setExpense({
-      amount: 0,
+      amount: "",
       expenseName: "",
       category: "",
       date: new Date(),

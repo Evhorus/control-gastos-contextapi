@@ -8,7 +8,7 @@ export type BudgetActions =
   | { type: "add-expense"; payload: { expense: DraftExpense } }
   | { type: "remove-expense"; payload: { id: Expense["id"] } }
   | { type: "get-expense-by-id"; payload: { id: Expense["id"] } }
-  | { type: "update-expense"; payload: { expense: Expense } }
+  | { type: "update-expense"; payload: { expense: DraftExpense } }
   | { type: "reset-app" }
   | { type: "add-filter-category"; payload: { id: Category["id"] } };
 
@@ -38,9 +38,11 @@ export const initialState: BudgetState = {
 };
 
 const createExpense = (draftExpense: DraftExpense): Expense => {
+  const amount = parseInt(draftExpense.amount);
   return {
     ...draftExpense,
     id: uuidv4(),
+    amount: amount,
   };
 };
 export const budgetReducer = (
@@ -77,13 +79,18 @@ export const budgetReducer = (
     };
   }
   if (action.type === "update-expense") {
+    const updateExpense: Expense[] = state.expenses.map((expense) =>
+      expense.id === state.editingId
+        ? {
+            id: state.editingId,
+            ...action.payload.expense,
+            amount: parseInt(action.payload.expense.amount),
+          }
+        : expense
+    );
     return {
       ...state,
-      expenses: state.expenses.map((expense) =>
-        expense.id === action.payload.expense.id
-          ? action.payload.expense
-          : expense
-      ),
+      expenses: updateExpense,
       modal: false,
       editingId: "",
     };

@@ -10,7 +10,12 @@ export type Expense = {
   date: Value;
 };
 
-export type DraftExpense = Omit<Expense, "id">;
+export type DraftExpense = {
+  expenseName: string;
+  amount: string;
+  category: string;
+  date: Value;
+};
 
 export type Category = {
   id: string;
