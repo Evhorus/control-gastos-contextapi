@@ -9,16 +9,22 @@ export function formatCurrency(amount: number) {
 
 // formateo de fechas
 export function formatDate(dateStr: string): string {
-  const dateObj = new Date(dateStr);
-  // Verificar si la fecha es válida
+  const [fecha] = dateStr.split(", ");
+
+  const [day, month, year] = fecha.split("/").map(Number);
+
+  const dateObj = new Date(year, month - 1, day);
+
   if (isNaN(dateObj.getTime())) {
     throw new RangeError("Invalid time value");
   }
+
   const options: Intl.DateTimeFormatOptions = {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
   };
+
   return new Intl.DateTimeFormat("es-CO", options).format(dateObj);
 }
